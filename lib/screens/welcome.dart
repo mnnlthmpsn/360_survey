@@ -20,10 +20,11 @@ class Welcome extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                SizedBox(height: MediaQuery.of(context).size.height * .1),
                 Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: AppConstants.spacing_xlarge),
-                    child: Lottie.asset('assets/lottie/landing.json')),
+                    child: Image.asset('assets/images/logo.png')),
                 const SizedBox(height: AppConstants.spacing_large),
                 Container(
                   alignment: Alignment.centerLeft,
@@ -34,7 +35,7 @@ class Welcome extends StatelessWidget {
                 ),
                 const SizedBox(height: AppConstants.spacing_middle),
                 const Text(
-                    'Keep track of documentations for your land with just a click!!!'),
+                    'Keep track of progress for your land documentation with just a click'),
                 const SizedBox(height: AppConstants.spacing_xlarge),
                 Row(
                   children: [

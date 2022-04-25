@@ -1,63 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:survey/components/appBar.dart';
+import 'package:survey/components/loader.dart';
 import 'package:survey/models/job.dart';
+import 'package:survey/models/job_details.dart';
+import 'package:survey/repos/repo.dart';
+import 'package:survey/utils/colors.dart';
 import 'package:survey/utils/constants.dart';
+import 'package:survey/utils/helpers.dart';
+import 'package:intl/intl.dart';
 
-class JobDetail extends StatelessWidget {
+class JobDetail extends StatefulWidget {
   final Job job;
 
   const JobDetail({Key? key, required this.job}) : super(key: key);
 
   @override
+  State<JobDetail> createState() => _JobDetailState();
+}
+
+class _JobDetailState extends State<JobDetail> {
+  Repo repo = Repo();
+
+  String convertDate(date) {
+    DateTime dttime = DateTime.parse(date);
+    return DateFormat('yyy-MM-dd | kk:mm').format(dttime);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KAppBar('Job Details', 'ID: ${job.regNum!}'),
+      appBar: KAppBar('Job Details', 'ID: ${widget.job.regNum!}'),
       body: _body(),
     );
   }
 
   Widget _body() {
     return Builder(builder: (BuildContext context) {
-      return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: AnimatedContainer(
-          duration: const Duration(seconds: 2),
-          padding: const EdgeInsets.all(AppConstants.spacing_large),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(child: Lottie.asset('assets/lottie/document.json', repeat: false, width: 200)),
-              const SizedBox(height: AppConstants.spacing_standard_new),
-              Text('Job Details', style: Theme.of(context).textTheme.headline6),
-              ListTile(
-                enableFeedback: true,
-                leading: const Icon(Icons.insert_drive_file),
-                title: Text('ID', style: Theme.of(context).textTheme.headline6),
-                subtitle: Text(job.regNum!, style: Theme.of(context).textTheme.subtitle2),
-              ),
-              ListTile(
-                enableFeedback: true,
-                leading: const Icon(Icons.location_on),
-                title: Text('Site Location', style: Theme.of(context).textTheme.headline6),
-                subtitle: Text('${job.district} - ${job.siteLocation}', style: Theme.of(context).textTheme.subtitle2),
-              ),
-              ListTile(
-                enableFeedback: true,
-                leading: const Icon(Icons.description),
-                title: Text('Description', style: Theme.of(context).textTheme.headline6),
-                subtitle: Text(job.description!, style: Theme.of(context).textTheme.subtitle2),
-              ),
-              ListTile(
-                enableFeedback: true,
-                leading: const Icon(Icons.info_rounded),
-                title: Text('Status: ${job.status!}', style: Theme.of(context).textTheme.subtitle2),
-                subtitle: Text(job.entryDate!, style: Theme.of(context).textTheme.subtitle2),
-              ),
-            ],
-          ),
-        ),
-      );
+      return FutureBuilder<List<JobDetails>>(
+          future: repo.reqJobDetails('arnolddo', widget.job.regNum!),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<JobDetails>> snapshot) {
+            if (snapshot.hasError) {
+              newPage(context, 'error');
+            }
+            if (snapshot.hasData) {
+              List<JobDetails> jobDetails = snapshot.data!;
+
+              return _stepper(jobDetails);
+            }
+            return const KLoader(color: AppColors.appColorPrimary, size: 60);
+          });
     });
+  }
+
+  Widget _stepper(List<JobDetails> jobDetails) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding:
+            const EdgeInsets.symmetric(horizontal: AppConstants.spacing_large),
+        child: Column(
+          children: [
+            Container(
+                alignment: Alignment.center,
+                width: 160,
+                child: Lottie.asset('assets/lottie/document.json')),
+            const SizedBox(height: 20),
+            Text(
+                '${widget.job.description!} | ${widget.job.siteLocation!} - ${widget.job.district!}',
+                style: Theme.of(context)
+                    .textTheme
+                    .subtitle2
+                    ?.copyWith(fontSize: 12, color: AppColors.appTextColorPrimary)),
+            const SizedBox(height: 24),
+            Stepper(
+              controlsBuilder: (context, details) => const SizedBox.shrink(),
+              steps: List.generate(jobDetails.length, (index) {
+                return Step(
+                    title: Text(convertDate(jobDetails[index].date!)),
+                    content: Text(jobDetails[index].statusComments!),
+                    isActive: true);
+              }),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

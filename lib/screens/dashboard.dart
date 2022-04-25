@@ -120,12 +120,23 @@ class _DashboardState extends State<Dashboard> {
           Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppConstants.spacing_large),
-              child: Text('Created Jobs',
+              child: Text('Submitted Jobs',
                   style: Theme.of(context).textTheme.headline6)),
           const SizedBox(height: AppConstants.spacing_standard_new),
           _jobs(_createdJobs),
 
-          // completed jobs
+          // pending jobs
+          const SizedBox(height: AppConstants.spacing_xlarge),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacing_large),
+            child: Text('In Progress',
+                style: Theme.of(context).textTheme.headline6),
+          ),
+          const SizedBox(height: AppConstants.spacing_standard_new),
+          _jobs(_pendingJobs),
+
+          // pending jobs
           const SizedBox(height: AppConstants.spacing_xlarge),
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -134,18 +145,7 @@ class _DashboardState extends State<Dashboard> {
                 style: Theme.of(context).textTheme.headline6),
           ),
           const SizedBox(height: AppConstants.spacing_standard_new),
-          _jobs(_compJobs),
-
-          // pending jobs
-          const SizedBox(height: AppConstants.spacing_xlarge),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppConstants.spacing_large),
-            child: Text('Pending Jobs',
-                style: Theme.of(context).textTheme.headline6),
-          ),
-          const SizedBox(height: AppConstants.spacing_standard_new),
-          _jobs(_pendingJobs)
+          _jobs(_compJobs)
         ],
       ),
     );
@@ -160,6 +160,7 @@ class _DashboardState extends State<Dashboard> {
                   return JobCard(job: job);
                 }).toList(),
                 options: CarouselOptions(
+                    initialPage: 1,
                     autoPlay: false,
                     scrollPhysics: const BouncingScrollPhysics(),
                     reverse: true,
