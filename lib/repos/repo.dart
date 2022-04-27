@@ -23,6 +23,18 @@ class Repo {
     }
   }
 
+  Future<bool> reqRegister(dynamic params) async {
+    try {
+      Uri url = Uri.parse('${AppStrings.API_URL}/signup');
+      dynamic res = await http.post(url, headers: headers, body: jsonEncode(params));
+      dynamic resBody = jsonDecode(res.body);
+
+      return resBody['status'] == 0 ? true: false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<Job>> reqJobs(username) async {
     dynamic params = {"username": username, "key": "1qaz@WSX"};
 
@@ -33,9 +45,14 @@ class Repo {
           body: jsonEncode(params));
       dynamic resBody = jsonDecode(res.body);
 
-      return (resBody['output'] as List)
-          .map((temp) => Job.fromJson(temp))
-          .toList();
+      if (resBody['status'] == 0) {
+        return (resBody['output'] as List)
+            .map((temp) => Job.fromJson(temp))
+            .toList();
+      }
+      else {
+        return [];
+      }
     } catch (e) {
       rethrow;
     }

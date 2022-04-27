@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:survey/components/kError.dart';
+import 'package:survey/components/settings.dart';
 import 'package:survey/screens/dashboard.dart';
 import 'package:survey/screens/login.dart';
+import 'package:survey/screens/otp.dart';
 import 'package:survey/screens/signUp.dart';
 import 'package:survey/screens/splashScreen.dart';
 import 'package:survey/screens/welcome.dart';
@@ -29,7 +31,9 @@ class App extends StatelessWidget {
         '/register': (context) => const SignUp(),
         '/login': (context) => const Login(),
         '/dashboard': (context) => const Dashboard(),
-        '/error': (context) => const KError()
+        '/error': (context) => const KError(),
+        '/settings': (context) => const Settings(),
+        '/otp': (context) => const OTPScreen()
       },
     );
   }

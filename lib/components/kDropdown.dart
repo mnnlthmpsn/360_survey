@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:survey/utils/colors.dart';
 import 'package:survey/utils/constants.dart';
 
@@ -20,6 +21,8 @@ class _KDropdownState extends State<KDropdown> {
 
   @override
   Widget build(BuildContext context) {
+
+    LocalStorage store = LocalStorage(widget.label.toLowerCase());
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -55,6 +58,7 @@ class _KDropdownState extends State<KDropdown> {
               style: Theme.of(context).textTheme.subtitle2,
               onChanged: (String? newValue) {
                 setState(() => _selectedValue = newValue!);
+                store.setItem(widget.label.toLowerCase(), _selectedValue);
                 state.didChange(newValue!);
               },
               items: widget.items.map((value) {

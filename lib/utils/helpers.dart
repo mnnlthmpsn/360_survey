@@ -9,6 +9,10 @@ void newPageDestroyPrevious(BuildContext context, String routeName) {
   Navigator.pushReplacementNamed(context, routeName);
 }
 
+void newPageDestroyAll(BuildContext context, String routeName) {
+  Navigator.of(context).pushNamedAndRemoveUntil(routeName, (route) => false);
+}
+
 void goBack(BuildContext context) {
   dismissKeyboard(context);
   Navigator.pop(context);

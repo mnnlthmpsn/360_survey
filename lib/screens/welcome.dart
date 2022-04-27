@@ -22,8 +22,9 @@ class Welcome extends StatelessWidget {
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * .1),
                 Container(
+                    width: MediaQuery.of(context).size.width * .55,
                     padding: const EdgeInsets.symmetric(
-                        vertical: AppConstants.spacing_xlarge),
+                        vertical: AppConstants.spacing_xxLarge),
                     child: Image.asset('assets/images/logo.png')),
                 const SizedBox(height: AppConstants.spacing_large),
                 Container(

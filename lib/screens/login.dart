@@ -6,6 +6,7 @@ import 'package:survey/components/kTextInput.dart';
 import 'package:survey/repos/repo.dart';
 import 'package:survey/utils/colors.dart';
 import 'package:survey/utils/constants.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:survey/utils/helpers.dart';
 
 class Login extends StatefulWidget {
@@ -20,6 +21,11 @@ class _LoginState extends State<Login> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final Repo _repo = Repo();
+  final LocalStorage storage = LocalStorage('360_survey');
+
+  void _saveToStorage(username) {
+    storage.setItem('username', username);
+  }
 
   void _login() async {
     try {
@@ -32,6 +38,7 @@ class _LoginState extends State<Login> {
       };
 
       bool isSuccessful = await _repo.reqLogin(params);
+      _saveToStorage(_usernameController.value.text);
       isSuccessful
           ? newPageDestroyPrevious(context, '/dashboard')
           : showSnackBar(context, 'Login Unsuccessful. Please try again', 'warning');

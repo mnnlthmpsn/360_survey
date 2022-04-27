@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:survey/components/appBar.dart';
 import 'package:survey/components/button.dart';
 import 'package:survey/components/kDropdown.dart';
 import 'package:survey/components/kTextInput.dart';
+import 'package:survey/repos/repo.dart';
 import 'package:survey/utils/colors.dart';
 import 'package:survey/utils/constants.dart';
+import 'package:survey/utils/helpers.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -14,6 +17,26 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+
+  final TextEditingController _firstnameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _othernameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _idNumberController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+
+  final LocalStorage _sexStore = LocalStorage('sex');
+  final LocalStorage _nationalityStore = LocalStorage('nationality');
+  final LocalStorage _idStore = LocalStorage('id');
+  final LocalStorage storage = LocalStorage('360_survey');
+
+  Repo repo = Repo();
+  bool isLoading = false;
+
   List<Map<String, dynamic>> gender = [
     {'key': 'Male', 'value': 'm'},
     {'key': 'Female', 'value': 'f'},
@@ -22,12 +45,51 @@ class _SignUpState extends State<SignUp> {
   List<Map<String, dynamic>> nationality = [
     {'key': 'Ghanaian', 'value': 'Ghanaian'},
     {'key': 'Nigerian', 'value': 'Nigerian'},
+    {'key': 'Other', 'value': 'other'},
   ];
 
   List<Map<String, dynamic>> id_types = [
     {'key': 'Voter\'s ID', 'value': 'VID'},
+    {'key': 'Ghana Card', 'value': 'GHC'},
     {'key': 'Driver\'s License', 'value': 'DVL'},
   ];
+
+  void _saveToStorage(username) {
+    storage.setItem('username', username);
+  }
+
+  void signUp() async {
+    dynamic payload = {
+      "firstname": _firstnameController.value.text.trim(),
+      "lastname": _lastnameController.value.text.trim(),
+      "othername": _othernameController.value.text.trim(),
+      "username": _usernameController.value.text.trim(),
+      "dob": _dobController.value.text.trim(),
+      "sex": _sexStore.getItem('sex').trim(),
+      "address": _addressController.value.text.trim(),
+      "nationality": _nationalityStore.getItem('nationality'),
+      "id_type": _idStore.getItem('id'),
+      "id_number": _idNumberController.value.text.trim(),
+      "email": _emailController.value.text.trim(),
+      "password": _passwordController.value.text.trim(),
+      "phone_number": _phoneNumberController.value.text.trim(),
+      "key": "1qaz@WSX"
+    };
+
+    try {
+      setState(() => isLoading = true);
+
+      bool isSuccessful = await repo.reqRegister(payload);
+      _saveToStorage(_usernameController.value.text);
+      isSuccessful
+          ? newPage(context, '/otp')
+          : showSnackBar(context, 'Sign up Unsuccessful. Please try again', 'warning');
+    } catch (e) {
+      newPage(context, '/error');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,36 +112,39 @@ class _SignUpState extends State<SignUp> {
         child: Form(
           child: Column(
             children: [
-              const KTextInput(label: 'Firstname'),
-              const KTextInput(label: 'Lastname'),
-              const KTextInput(label: 'Other Names'),
-              const KTextInput(label: 'Username'),
-              const KTextInput(
+              KTextInput(label: 'Firstname', controller: _firstnameController),
+              KTextInput(label: 'Lastname', controller: _lastnameController,),
+              KTextInput(label: 'Other Names', controller: _othernameController,),
+              KTextInput(label: 'Username', controller: _usernameController),
+              KTextInput(
                   label: 'Date of Birth',
-                  textInputType: TextInputType.datetime),
+                  textInputType: TextInputType.datetime, controller: _dobController,),
               KDropdown(label: 'Sex', items: gender),
-              const KTextInput(label: 'Address'),
+              KTextInput(label: 'Address', controller: _addressController),
               KDropdown(label: 'Nationality', items: nationality),
               KDropdown(label: 'ID', items: id_types),
-              const KTextInput(label: 'ID Number'),
-              const KTextInput(
+              KTextInput(label: 'ID Number', controller: _idNumberController,),
+              KTextInput(
                 label: 'Email',
                 textInputType: TextInputType.emailAddress,
+                controller: _emailController
               ),
-              const KTextInput(
-                  label: 'Phone', textInputType: TextInputType.phone),
-              const KTextInput(
+              KTextInput(
+                  label: 'Phone', textInputType: TextInputType.phone, controller: _phoneNumberController),
+              KTextInput(
                 label: 'Password',
                 textInputType: TextInputType.visiblePassword,
                 isPassword: true,
                 textInputAction: TextInputAction.done,
+                controller: _passwordController
               ),
               Container(
                   padding: const EdgeInsets.all(8.0),
                   width: double.infinity,
                   child: KButton(
                       label: 'Continue',
-                      onPressed: () => print('Hello world'))),
+                      isLoading: isLoading,
+                      onPressed: signUp)),
               const SizedBox(height: AppConstants.spacing_large)
             ],
           ),

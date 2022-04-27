@@ -14,6 +14,7 @@ class JobCard extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height * .1,
       width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 5),
       child: InkWell(
           enableFeedback: true,
           onTap: () => Navigator.push(

@@ -1,6 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:lottie/lottie.dart';
+import 'package:survey/components/button.dart';
 import 'package:survey/components/jobCard.dart';
+import 'package:survey/components/kEmpty.dart';
+import 'package:survey/components/kError.dart';
 import 'package:survey/components/loader.dart';
 import 'package:survey/models/job.dart';
 import 'package:survey/repos/repo.dart';
@@ -16,7 +21,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  List _comJobs = [1, 2, 3];
+  final LocalStorage storage = LocalStorage('360_survey');
   late Future myFuture;
   final Repo repo = Repo();
 
@@ -28,8 +33,8 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    myFuture = repo.reqJobs('arnolddo');
+    String username = storage.getItem('username');
+    myFuture = repo.reqJobs(username);
   }
 
   @override
@@ -45,26 +50,43 @@ class _DashboardState extends State<Dashboard> {
         future: myFuture,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
-            newPage(context, 'error');
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.spacing_large),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Lottie.asset('assets/lottie/error.json'),
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width * .5,
+                        child: KButton(label: 'Try Again', onPressed: () => newPageDestroyPrevious(context, '/login')))
+                  ],
+                ),
+              ),
+            );
           }
           if (snapshot.hasData) {
             List<Job> jobs = snapshot.data as List<Job>;
 
-            for (var job in jobs) {
-              if (job.status?.toLowerCase() == 'pending') {
-                _pendingJobs.add(job);
+            if (jobs.isNotEmpty) {
+              for (var job in jobs) {
+                if (job.status?.toLowerCase() == 'pending') {
+                  _pendingJobs.add(job);
+                }
+                if (job.status?.toLowerCase() == 'completed') {
+                  _compJobs.add(job);
+                }
+                if (job.status?.toLowerCase() == 'created') {
+                  _createdJobs.add(job);
+                } else {
+                  print(job);
+                }
               }
-              if (job.status?.toLowerCase() == 'completed') {
-                _compJobs.add(job);
-              }
-              if (job.status?.toLowerCase() == 'created') {
-                _createdJobs.add(job);
-              } else {
-                print(job);
-              }
+              return _jobBody();
+            } else {
+              return const KEmpty();
             }
-
-            return _jobBody();
           }
           return const KLoader(color: AppColors.appColorPrimary, size: 60);
         });
@@ -100,7 +122,7 @@ class _DashboardState extends State<Dashboard> {
                     )
                   ],
                 ),
-                IconButton(onPressed: () {}, icon: Icon(Icons.settings))
+                IconButton(onPressed: () => newPage(context, '/settings'), icon: const Icon(Icons.settings))
               ],
             ),
           );
@@ -160,13 +182,13 @@ class _DashboardState extends State<Dashboard> {
                   return JobCard(job: job);
                 }).toList(),
                 options: CarouselOptions(
-                    initialPage: 1,
+                    initialPage: jobs.length,
                     autoPlay: false,
                     scrollPhysics: const BouncingScrollPhysics(),
                     reverse: true,
                     aspectRatio: 3,
                     enableInfiniteScroll: false,
-                    enlargeCenterPage: true))
+                    enlargeCenterPage: false))
             : const Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: AppConstants.spacing_middle,
