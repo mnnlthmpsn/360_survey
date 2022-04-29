@@ -5,7 +5,6 @@ import 'package:lottie/lottie.dart';
 import 'package:survey/components/button.dart';
 import 'package:survey/components/jobCard.dart';
 import 'package:survey/components/kEmpty.dart';
-import 'package:survey/components/kError.dart';
 import 'package:survey/components/loader.dart';
 import 'package:survey/models/job.dart';
 import 'package:survey/repos/repo.dart';

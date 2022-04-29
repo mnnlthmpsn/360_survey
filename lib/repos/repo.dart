@@ -26,11 +26,42 @@ class Repo {
   Future<bool> reqRegister(dynamic params) async {
     try {
       Uri url = Uri.parse('${AppStrings.API_URL}/signup');
-      dynamic res = await http.post(url, headers: headers, body: jsonEncode(params));
+      dynamic res =
+          await http.post(url, headers: headers, body: jsonEncode(params));
       dynamic resBody = jsonDecode(res.body);
 
-      return resBody['status'] == 0 ? true: false;
+      return resBody['status'] == 0 ? true : false;
     } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<bool> validateOTP(dynamic params) async {
+    try {
+      Uri url = Uri.parse('${AppStrings.API_URL}/Validate_code');
+      dynamic res =
+          await http.post(url, headers: headers, body: jsonEncode(params));
+      dynamic resBody = jsonDecode(res.body);
+
+      return resBody['status'] == 0 ? true : false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> resendOTP(dynamic params) async {
+    try {
+      Uri url = Uri.parse('${AppStrings.API_URL}/resend_validation');
+      dynamic res =
+          await http.post(url, headers: headers, body: jsonEncode(params));
+      dynamic resBody = jsonDecode(res.body);
+      print(resBody);
+
+
+      return resBody['status'] == 0 ? true : false;
+    } catch (e) {
+      print(e);
       rethrow;
     }
   }
@@ -49,8 +80,7 @@ class Repo {
         return (resBody['output'] as List)
             .map((temp) => Job.fromJson(temp))
             .toList();
-      }
-      else {
+      } else {
         return [];
       }
     } catch (e) {
@@ -67,10 +97,9 @@ class Repo {
       };
 
       dynamic res = await http.post(
-              Uri.parse('${AppStrings.API_URL}/job_status'),
-            headers: headers,
-            body: jsonEncode(body)
-          );
+          Uri.parse('${AppStrings.API_URL}/job_status'),
+          headers: headers,
+          body: jsonEncode(body));
       dynamic resBody = jsonDecode(res.body);
       return (resBody['output'] as List)
           .map((temp) => JobDetails.fromJson(temp))
