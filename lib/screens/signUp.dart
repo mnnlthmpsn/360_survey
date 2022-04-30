@@ -58,6 +58,24 @@ class _SignUpState extends State<SignUp> {
     storage.setItem('username', username);
   }
 
+  void _sendOTP() async {
+    LocalStorage storage = LocalStorage('360_survey');
+    String username = storage.getItem('username');
+
+    // useless commit for git
+
+    dynamic payload = {
+      "username": username,
+      "key":"1qaz@WSX"
+    };
+
+    try {
+      repo.resendOTP(payload);
+    } catch(e) {
+      showSnackBar(context, e.toString(), 'warning');
+    }
+  }
+
   void signUp() async {
     dynamic payload = {
       "firstname": _firstnameController.value.text.trim(),
@@ -79,12 +97,20 @@ class _SignUpState extends State<SignUp> {
     try {
       setState(() => isLoading = true);
 
-      bool isSuccessful = await repo.reqRegister(payload);
+      dynamic res = await repo.reqRegister(payload);
       _saveToStorage(_usernameController.value.text);
-      isSuccessful
-          ? newPage(context, '/otp')
-          : showSnackBar(context, 'Sign up Unsuccessful. Please try again', 'warning');
+
+      if (res['status'] == 0) {
+        newPage(context, '/otp');
+      } else if (res['status'] == 1) {
+      //  resend token
+        _sendOTP();
+        newPage(context, '/otp');
+      } else {
+        showSnackBar(context, res['message'], 'warning');
+      }
     } catch (e) {
+      print(e);
       newPage(context, '/error');
     } finally {
       setState(() => isLoading = false);

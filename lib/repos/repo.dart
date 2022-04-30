@@ -23,16 +23,16 @@ class Repo {
     }
   }
 
-  Future<bool> reqRegister(dynamic params) async {
+  Future<dynamic> reqRegister(dynamic params) async {
     try {
       Uri url = Uri.parse('${AppStrings.API_URL}/signup');
       dynamic res =
           await http.post(url, headers: headers, body: jsonEncode(params));
       dynamic resBody = jsonDecode(res.body);
-
-      return resBody['status'] == 0 ? true : false;
+      print(resBody);
+      return resBody;
     } catch (e) {
-      print(e);
+
       rethrow;
     }
   }
@@ -43,6 +43,7 @@ class Repo {
       dynamic res =
           await http.post(url, headers: headers, body: jsonEncode(params));
       dynamic resBody = jsonDecode(res.body);
+      print(resBody);
 
       return resBody['status'] == 0 ? true : false;
     } catch (e) {
@@ -51,6 +52,7 @@ class Repo {
   }
 
   Future<bool> resendOTP(dynamic params) async {
+    print(params);
     try {
       Uri url = Uri.parse('${AppStrings.API_URL}/resend_validation');
       dynamic res =
