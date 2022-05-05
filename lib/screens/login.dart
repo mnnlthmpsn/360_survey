@@ -37,11 +37,19 @@ class _LoginState extends State<Login> {
         "key": "1qaz@WSX"
       };
 
-      bool isSuccessful = await _repo.reqLogin(params);
       _saveToStorage(_usernameController.value.text);
-      isSuccessful
-          ? newPageDestroyPrevious(context, '/dashboard')
-          : showSnackBar(context, 'Login Unsuccessful. Please try again', 'warning');
+
+      int status = await _repo.reqLogin(params);
+
+      if (status == 0) {
+        newPageDestroyPrevious(context, '/dashboard');
+      }
+      else if (status == 1) {
+        showSnackBar(context, 'Incorrect password. Try again', 'warning');
+      }
+      else if (status == 2) {
+        newPage(context, '/otp');
+      }
     } catch (e) {
       newPage(context, '/error');
     } finally {

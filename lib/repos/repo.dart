@@ -10,14 +10,14 @@ class Repo {
     "Content-Type": "application/json;charset=UTF-8"
   };
 
-  Future<bool> reqLogin(dynamic params) async {
+  Future<dynamic> reqLogin(dynamic params) async {
     try {
       Uri url = Uri.parse('${AppStrings.API_URL}/log_in');
       dynamic res =
           await http.post(url, headers: headers, body: jsonEncode(params));
       dynamic resBody = jsonDecode(res.body);
 
-      return resBody['status'] == 0 ? true : false;
+      return resBody['status'];
     } catch (e) {
       rethrow;
     }

@@ -24,18 +24,9 @@ class _OTPScreenState extends State<OTPScreen> {
   final TextEditingController _sixCont = TextEditingController();
 
   bool isLoading = false;
-  // String username = '';
   final LocalStorage storage = LocalStorage('360_survey');
 
   final Repo _repo = Repo();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    String username = storage.getItem('username');
-    // setState(() => username = username);
-  }
 
   void resendOTP() async {
     String username = storage.getItem('username');
@@ -46,10 +37,10 @@ class _OTPScreenState extends State<OTPScreen> {
     };
 
     try {
-      dynamic res = await _repo.resendOTP(payload);
-      res['status'] == 0
+      dynamic _isSent = await _repo.resendOTP(payload);
+      _isSent
           ? showSnackBar(context, 'OTP Resent', 'success')
-          : throw res['message'];
+          : throw "Sorry an error occured";
     }
     catch(e) {
       print(e);
