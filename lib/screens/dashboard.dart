@@ -41,6 +41,12 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => newPageDestroyPrevious(context, '/dashboard'),
+        backgroundColor: AppColors.appColorPrimary,
+        foregroundColor: Colors.white,
+        child: Icon(Icons.refresh_rounded),
+      ),
     );
   }
 
@@ -59,7 +65,9 @@ class _DashboardState extends State<Dashboard> {
                     Lottie.asset('assets/lottie/error.json'),
                     SizedBox(
                         width: MediaQuery.of(context).size.width * .5,
-                        child: KButton(label: 'Try Again', onPressed: () => newPageDestroyPrevious(context, '/login')))
+                        child: KButton(
+                            label: 'Try Again',
+                            onPressed: () => newPageDestroyPrevious(context, '/dashboard')))
                   ],
                 ),
               ),
@@ -84,7 +92,9 @@ class _DashboardState extends State<Dashboard> {
               }
               return _jobBody();
             } else {
-              return const KEmpty();
+              return Stack(
+                children: [const KEmpty(), _refresh()],
+              );
             }
           }
           return const KLoader(color: AppColors.appColorPrimary, size: 60);
@@ -121,7 +131,9 @@ class _DashboardState extends State<Dashboard> {
                     )
                   ],
                 ),
-                IconButton(onPressed: () => newPage(context, '/settings'), icon: const Icon(Icons.settings))
+                IconButton(
+                    onPressed: () => newPage(context, '/settings'),
+                    icon: const Icon(Icons.settings))
               ],
             ),
           );
@@ -129,45 +141,65 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _jobBody() {
-    return AnimatedContainer(
-      duration: const Duration(seconds: 2),
-      padding:
-          const EdgeInsets.symmetric(vertical: AppConstants.spacing_control),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Created Jobs
-          const SizedBox(height: AppConstants.spacing_standard_new),
-          Padding(
+    return RefreshIndicator(
+      onRefresh: () => myFuture,
+      child: AnimatedContainer(
+        duration: const Duration(seconds: 2),
+        padding:
+            const EdgeInsets.symmetric(vertical: AppConstants.spacing_control),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Created Jobs
+            const SizedBox(height: AppConstants.spacing_standard_new),
+            Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.spacing_large),
+                child: Text('Submitted Jobs',
+                    style: Theme.of(context).textTheme.headline6)),
+            const SizedBox(height: AppConstants.spacing_standard_new),
+            _jobs(_createdJobs),
+
+            // pending jobs
+            const SizedBox(height: AppConstants.spacing_xlarge),
+            Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppConstants.spacing_large),
-              child: Text('Submitted Jobs',
-                  style: Theme.of(context).textTheme.headline6)),
-          const SizedBox(height: AppConstants.spacing_standard_new),
-          _jobs(_createdJobs),
+              child: Text('In Progress',
+                  style: Theme.of(context).textTheme.headline6),
+            ),
+            const SizedBox(height: AppConstants.spacing_standard_new),
+            _jobs(_pendingJobs),
 
-          // pending jobs
-          const SizedBox(height: AppConstants.spacing_xlarge),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppConstants.spacing_large),
-            child: Text('In Progress',
-                style: Theme.of(context).textTheme.headline6),
-          ),
-          const SizedBox(height: AppConstants.spacing_standard_new),
-          _jobs(_pendingJobs),
+            // pending jobs
+            const SizedBox(height: AppConstants.spacing_xlarge),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spacing_large),
+              child: Text('Completed Jobs',
+                  style: Theme.of(context).textTheme.headline6),
+            ),
+            const SizedBox(height: AppConstants.spacing_standard_new),
+            _jobs(_compJobs)
+          ],
+        ),
+      ),
+    );
+  }
 
-          // pending jobs
-          const SizedBox(height: AppConstants.spacing_xlarge),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppConstants.spacing_large),
-            child: Text('Completed Jobs',
-                style: Theme.of(context).textTheme.headline6),
+  Widget _refresh() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 5,
+      child: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * .4,
+          child: KButton(
+            onPressed: () => newPageDestroyPrevious(context, '/dashboard'),
+            label: 'Refresh',
           ),
-          const SizedBox(height: AppConstants.spacing_standard_new),
-          _jobs(_compJobs)
-        ],
+        ),
       ),
     );
   }

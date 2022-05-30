@@ -15,15 +15,17 @@ class KError extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppConstants.spacing_large),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset('assets/lottie/error.json'),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * .5,
-                  child: KButton(label: 'Try Again', onPressed: () => Navigator.pop(context)))
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Lottie.asset('assets/lottie/error.json'),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * .5,
+                    child: KButton(label: 'Try Again', onPressed: () => Navigator.pop(context)))
+              ],
+            ),
           ),
         ),
       ),

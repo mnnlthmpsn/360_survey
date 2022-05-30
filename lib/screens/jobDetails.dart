@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:survey/components/appBar.dart';
 import 'package:survey/components/loader.dart';
@@ -21,10 +22,20 @@ class JobDetail extends StatefulWidget {
 
 class _JobDetailState extends State<JobDetail> {
   Repo repo = Repo();
+  late Future myFuture;
+  final LocalStorage storage = LocalStorage('360_survey');
 
   String convertDate(date) {
     DateTime dttime = DateTime.parse(date);
     return DateFormat('yyy-MM-dd | kk:mm').format(dttime);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    String username = storage.getItem('username');
+    myFuture = repo.reqJobDetails(username, widget.job.regNum!);
   }
 
   @override
@@ -37,12 +48,11 @@ class _JobDetailState extends State<JobDetail> {
 
   Widget _body() {
     return Builder(builder: (BuildContext context) {
-      return FutureBuilder<List<JobDetails>>(
-          future: repo.reqJobDetails('arnolddo', widget.job.regNum!),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<JobDetails>> snapshot) {
+      return FutureBuilder(
+          future: myFuture,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasError) {
-              newPage(context, 'error');
+              newPage(context, '/error');
             }
             if (snapshot.hasData) {
               List<JobDetails> jobDetails = snapshot.data!;
@@ -56,6 +66,7 @@ class _JobDetailState extends State<JobDetail> {
 
   Widget _stepper(List<JobDetails> jobDetails) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding:
             const EdgeInsets.symmetric(horizontal: AppConstants.spacing_large),
@@ -68,12 +79,11 @@ class _JobDetailState extends State<JobDetail> {
             const SizedBox(height: 20),
             Text(
                 '${widget.job.description!} | ${widget.job.siteLocation!} - ${widget.job.district!}',
-                style: Theme.of(context)
-                    .textTheme
-                    .subtitle2
-                    ?.copyWith(fontSize: 12, color: AppColors.appTextColorPrimary)),
+                style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                    fontSize: 12, color: AppColors.appTextColorPrimary)),
             const SizedBox(height: 24),
             Stepper(
+              physics: const NeverScrollableScrollPhysics(),
               controlsBuilder: (context, details) => const SizedBox.shrink(),
               steps: List.generate(jobDetails.length, (index) {
                 return Step(

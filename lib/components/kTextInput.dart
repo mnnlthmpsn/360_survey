@@ -7,14 +7,19 @@ class KTextInput extends StatefulWidget {
   final TextInputAction? textInputAction;
   final TextInputType? textInputType;
   final bool? isPassword;
+  final VoidCallback? onTap;
   final TextEditingController? controller;
+  final bool? skipValidation;
 
   const KTextInput(
       {Key? key,
       this.textInputAction,
       this.textInputType,
       this.isPassword = false,
-      required this.label, this.controller})
+      this.skipValidation = false,
+      this.onTap,
+      required this.label,
+      this.controller})
       : super(key: key);
 
   @override
@@ -49,7 +54,18 @@ class _KTextInputState extends State<KTextInput> {
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
         controller: widget.controller,
-        onTap: () => setState(() => filled = false),
+        onTap:
+            widget.onTap ?? () => setState(() => filled = false),
+        validator: (value) {
+          if (widget.skipValidation == true) {
+            return null;
+          } else {
+            if (value == null || value.isEmpty) {
+              return 'Please enter ${widget.label}';
+            }
+            return null;
+          }
+        },
         focusNode: _focusNode,
         style: Theme.of(context).textTheme.subtitle2,
         textInputAction: widget.textInputAction ?? TextInputAction.next,
@@ -76,7 +92,7 @@ class _KTextInputState extends State<KTextInput> {
                 borderRadius:
                     BorderRadius.circular(AppConstants.spacing_standard),
                 borderSide: const BorderSide(
-                    color: AppColors.appColorPrimary, width: 1.4))),
+                    color: AppColors.appColorPrimary, width: .8))),
       ),
     );
   }

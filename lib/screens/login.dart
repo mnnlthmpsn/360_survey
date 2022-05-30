@@ -23,37 +23,39 @@ class _LoginState extends State<Login> {
   final Repo _repo = Repo();
   final LocalStorage storage = LocalStorage('360_survey');
 
+  final _formKey = GlobalKey<FormState>();
+
   void _saveToStorage(username) {
     storage.setItem('username', username);
   }
 
   void _login() async {
-    try {
-      setState(() => isLoading = true);
+    if (_formKey.currentState!.validate()) {
+      try {
 
-      var params = {
-        "username": _usernameController.value.text,
-        "password": _passwordController.value.text,
-        "key": "1qaz@WSX"
-      };
+        setState(() => isLoading = true);
+        var params = {
+          "username": _usernameController.value.text,
+          "password": _passwordController.value.text,
+          "key": "1qaz@WSX"
+        };
 
-      _saveToStorage(_usernameController.value.text);
+        _saveToStorage(_usernameController.value.text);
 
-      int status = await _repo.reqLogin(params);
+        int status = await _repo.reqLogin(params);
 
-      if (status == 0) {
-        newPageDestroyPrevious(context, '/dashboard');
+        if (status == 0) {
+          newPageDestroyAll(context, '/dashboard');
+        } else if (status == 1) {
+          showSnackBar(context, 'Incorrect password. Try again', 'warning');
+        } else if (status == 2) {
+          newPage(context, '/otp');
+        }
+      } catch (e) {
+        newPage(context, '/error');
+      } finally {
+        setState(() => isLoading = false);
       }
-      else if (status == 1) {
-        showSnackBar(context, 'Incorrect password. Try again', 'warning');
-      }
-      else if (status == 2) {
-        newPage(context, '/otp');
-      }
-    } catch (e) {
-      newPage(context, '/error');
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
@@ -84,6 +86,7 @@ class _LoginState extends State<Login> {
             const EdgeInsets.symmetric(horizontal: AppConstants.spacing_large),
         duration: const Duration(seconds: 2),
         child: Form(
+          key: _formKey,
           child: Column(
             children: <Widget>[
               Lottie.asset('assets/lottie/login.json', repeat: false),
