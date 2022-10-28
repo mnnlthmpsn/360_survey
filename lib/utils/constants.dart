@@ -18,5 +18,4 @@ class AppConstants {
   static const spacing_large = 24.0;
   static const spacing_xlarge = 32.0;
   static const spacing_xxLarge = 40.0;
-
 }

@@ -29,8 +29,6 @@ void showSnackBar(BuildContext context, String message, String type) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: type == 'success' ? Colors.green : Colors.red,
       content: Text(message,
-          style: Theme.of(context)
-              .textTheme
-              .subtitle2
-              ?.copyWith(color: Colors.white, fontSize: AppConstants.textSizeSmall))));
+          style: Theme.of(context).textTheme.subtitle2?.copyWith(
+              color: Colors.white, fontSize: AppConstants.textSizeSmall))));
 }
